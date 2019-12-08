@@ -1,0 +1,20 @@
+{
+  "name": "webproject",
+  "version": "1.0.0",
+  "description": "server for web project",
+  "main": "app.js",
+  "scripts": {
+    "start": "nodemon --inspect app.js"
+  },
+  "author": "YoonSeongKyeong",
+  "license": "ISC",
+  "dependencies": {
+    "cookie-parser": "^1.4.4",
+    "cors": "^2.8.5",
+    "express": "^4.17.1",
+    "express-session": "^1.17.0",
+    "morgan": "^1.9.1",
+    "mysql": "^2.17.1",
+    "nodemon": "^2.0.1"
+  }
+}
