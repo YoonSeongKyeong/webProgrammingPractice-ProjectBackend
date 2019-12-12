@@ -34,13 +34,14 @@
 ### selling item list
 - ### GET /items/:seller_id/registered : response로 seller_id에 해당하는 판매자가 등록한 상품 목록 [{item}, ...] 을 받아온다. (item에는 wished_number에서 장바구니에 담긴 횟수, auction_history에서 경매 기록을 확인할 수 있다 "buyer_id,price|buyer_id,price|..."가 반복되는 형식이고 늦게 입찰한 사람이 뒤에 있는 순서를 갖고 있다.)
 ### item modification
-- ### PUT /items/:seller_id/registered/:item_id : body로 {[name:상품이름[, status:상태[, place:교환장소[, price:가격[, image:사진]]]]]} put 가능 (경매에서 낙찰시 status만 바꾸면 됨)
+- ### PUT /items/:seller_id/registered/:item_id : body로 {[name:상품이름[, status:상태[, place:교환장소[, price:가격[, image:사진[, category:카테고리]]]]]]} put 가능 (경매에서 낙찰시 status만 바꾸면 됨)
 ### item register
-- ### POST /items/:seller_id/registered : body로 {name:상품이름, place:교환장소[, price:가격], image:사진} post 가능 (price가 없을 시엔 0으로 기본 설정되고, status가 경매중으로 설정된다.)
+- ### POST /items/:seller_id/registered : body로 {name:상품이름, place:교환장소[, price:가격], image:사진, category:카테고리} post 가능 (price가 없을 시엔 0으로 기본 설정되고, status가 경매중으로 설정된다.)
 ### item delete
 - ### DELETE /items/:seller_id/registered/item_id : 판매자가 등록한 해당 item을 삭제한다. 
 
 # Data Structure Specification
+
 
 ## PEOPLE : 
     id:아이디:VARCHAR(45), 
@@ -64,6 +65,7 @@
     auction_history:입찰기록:VARCHAR(1024)
     auction_expire_time:경매종료시각:DATETIME
     wished_number:INT = 장바구니 담긴 수
+    category:VARCHAR(45): 상품의 카테고리
     (auction_time_last:INT = 시간 단위, 서버에서 계산)
 
     PRIMARYKEY(id)

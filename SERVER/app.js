@@ -18,12 +18,12 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
 //session initialize
-const {sessionKey} = require('./secrets/sessionKey.js')
+const {secretKey} = require('./secrets/sessionKey.js')
 
 app.use(session({
-  secret: sessionKey,
+  secret: secretKey,
   resave: false,
-  saveUninitialized: false,
+  saveUninitialized: true,
 }));
 
 //router
@@ -38,6 +38,7 @@ app.use(function(req, res, next) {
 // error handler
 app.use(function(err, req, res, next) {
   // set locals, only providing error in development
+  debugger
   res.message = err.message;
   res.error = err;
   res.status(err.status || 500).send()

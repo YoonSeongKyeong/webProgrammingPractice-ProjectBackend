@@ -11,21 +11,22 @@ let pool = mysql.createPool(sqlConfig);
 // Buyer Functions
 
 router.get('/', function (req, res, next) {// GET /items/?sellerName=판매자이름&search=검색어&minPrice=최소금액&maxPrice=최대금액 : response로 전체 상품 중 검색 조건에 맞는 목록 [{item}, ...] 을 받아온다.
+    debugger
     let sellerName = req.query.sellerName
     let search = req.query.search
     let minPrice = Number(req.query.minPrice)
     let maxPrice = Number(req.query.maxPrice)
     let whereArr = []
-    if(sellerName !== undefined) {
+    if(!!sellerName) {
         whereArr.push(`seller_id="${sellerName}"`)
     }
-    if(search !== undefined) {
+    if(!!search) {
         whereArr.push(`name LIKE '%${search}%'`)
     }
-    if(minPrice !== undefined) {
+    if(!!minPrice) {
         whereArr.push(`price > ${minPrice}`)
     }
-    if(maxPrice !== undefined) {
+    if(!!maxPrice) {
         whereArr.push(`price < ${maxPrice}`)
     }
     let sqlQuery = `SELECT * FROM items `
@@ -53,8 +54,9 @@ router.get('/', function (req, res, next) {// GET /items/?sellerName=판매자�
 });
 
 router.get('/:buyer_id/purchased', function (req, res, next) {// GET /items/:buyer_id/purchased : response로 buyer_id에 해당하는 구매자가 구매, 입찰한 상품 목록 [{item}, ...] 을 받아온다.
+    debugger
     let buyer_id = req.params.buyer_id
-    let sqlQuery = `SELECT * FROM items WHERE buyer_id = '${buyer_id}' OR cur_bidder_id = '${buyer_id} `
+    let sqlQuery = `SELECT * FROM items WHERE buyer_id = '${buyer_id}' OR cur_bidder_id = '${buyer_id}' `
     // Get Connection in Pool
     pool.getConnection(function (err, connection) {
         if (!err) {
