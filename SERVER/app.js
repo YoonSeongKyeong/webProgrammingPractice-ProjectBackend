@@ -1,20 +1,14 @@
-// mysql connection start
-const {sqlConfig} = require('./secrets/sqlconfig')
-
-const mysql      = require('mysql');
-const connection = mysql.createConnection(sqlConfig);
-
-connection.connect();
-// mysql connection end
-
+let http = require('http');
 let express = require('express');
-var cors = require('cors')
+let cors = require('cors')
 let path = require('path');
 let cookieParser = require('cookie-parser');
 let logger = require('morgan');
 let session = require('express-session');
 let FileStore = require('session-file-store');
 
+let membersRouter = require('./routes/members');
+let itemsRouter = require('./routes/items');
 
 let app = express();
 
@@ -25,7 +19,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
 //session initialize
-const {sessionKey} = require('./secrets/')
+const {sessionKey} = require('./secrets/sessionKey.js')
 
 app.use(session({
   secret: sessionKey,
@@ -34,33 +28,22 @@ app.use(session({
 }));
 
 //router
-// app.use('/', indexRouter);
-// app.use('/api/items', itemsRouter);
-// app.use('/api/reviews', reviewsRouter);
-// app.use('/api/users', usersRouter);
-// app.use('/api/login', loginRouter);
-// app.use('/api/logout', logoutRouter);
-// app.use('/api/signup', signupRouter);
+app.use('/members', membersRouter);
+app.use('/items', itemsRouter);
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-connection.query('SELECT * from users', function(err, rows, fields) {
-  if (!err)
-    console.log('The solution is: ', rows);
-  else
-    console.log('Error while performing Query.', err);
+// catch 404 and forward to error handler
+app.use(function(req, res, next) {
+  next(createError(404));
 });
 
-connection.end();
+// error handler
+app.use(function(err, req, res, next) {
+  // set locals, only providing error in development
+  res.message = err.message;
+  res.error = err;
+  res.status(err.status || 500).send()
+});
+
+app.listen(3000, function () {
+  console.log('app listening on port 3000!');
+});

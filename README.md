@@ -12,7 +12,7 @@
 ### register
 - ### POST /members : body로 {id:아이디, sid:학번, password:비밀번호, name:이름, classification:("manager"|"seller"|"buyer"), phone:전화번호} post
 ### login
-- ### POST /login : body로 {id:아이디, sid:학번, password:비밀번호} post하면, response로 user정보를 받아온다
+- ### POST /members/login : body로 {id:아이디, sid:학번, password:비밀번호} post하면, response로 user정보를 받아온다
 
 # 상품(Items)
 ## 구매자 기능(Buyer's function)
@@ -42,10 +42,10 @@
 
 # Data Structure Specification
 
-## PERSON : 
+## PEOPLE : 
     id:아이디:VARCHAR(35), 
     sid:학번:VARCHAR(35), 
-    password:비밀번호:VARCHAR(35), 
+    password:비밀번호:VARCHAR(64), 
     name:이름:VARCHAR(35), 
     classification:("manager"|"seller"|"buyer"):VARCHAR(35), phone:전화번호:VARCHAR(35)
 
