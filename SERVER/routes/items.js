@@ -10,12 +10,13 @@ let pool = mysql.createPool(sqlConfig);
 
 // Buyer Functions
 
-router.get('/', function (req, res, next) {// GET /items/?sellerName=판매자이름&search=검색어&minPrice=최소금액&maxPrice=최대금액 : response로 전체 상품 중 검색 조건에 맞는 목록 [{item}, ...] 을 받아온다.
+router.get('/', function (req, res, next) {// GET /items/?sellerName=판매자이름&search=검색어&minPrice=최소금액&maxPrice=최대금액&category=카테고리 : response로 전체 상품 중 검색 조건에 맞는 목록 [{item}, ...] 을 받아온다.
     debugger
     let sellerName = req.query.sellerName
     let search = req.query.search
     let minPrice = Number(req.query.minPrice)
     let maxPrice = Number(req.query.maxPrice)
+    let category = req.query.category
     let whereArr = []
     if(!!sellerName) {
         whereArr.push(`seller_id="${sellerName}"`)
@@ -28,6 +29,9 @@ router.get('/', function (req, res, next) {// GET /items/?sellerName=판매자�
     }
     if(!!maxPrice) {
         whereArr.push(`price < ${maxPrice}`)
+    }
+    if(!!category) {
+        whereArr.push(`category = ${category}`)
     }
     let sqlQuery = `SELECT * FROM items `
     if(whereArr.length!==0) {
@@ -101,6 +105,7 @@ router.get('/:buyer_id/wished', function (req, res, next) {// GET /items/:buyer_
 });
 
 router.post('/:buyer_id/purchased/:item_id', function (req, res, next) {// POST /items/:buyer_id/purchased/:item_id : 구매자의 구매목록에 해당 상품이 저장된다.
+    debugger
     let buyer_id = req.params.buyer_id
     let item_id = req.params.item_id
     let mode = req.query.mode // 구매시 purchase, 입찰시 auction
@@ -163,7 +168,7 @@ router.post('/:buyer_id/wished/:item_id', function (req, res, next) {// POST /it
 router.delete('/:buyer_id/purchased/:item_id', function (req, res, next) { // DELETE /items/:buyer_id/purchased/:item_id : 구매자의 구매목록에서 해당 상품이 삭제된다. (frontend rule: 입찰 상태인 상품은 자신이 최신 입찰자일 때, 삭제가 불가능하다.)
     // let buyer_id = req.params.buyer_id // 현재는 필요 없다.
     let item_id = req.params.item_id
-    let sqlQuery = `UPDATE items SET buyer_id='' WHERE id='${item_id}`
+    let sqlQuery = `UPDATE items SET buyer_id='' WHERE id='${item_id}'`
     // Get Connection in Pool
     pool.getConnection(function (err, connection) {
         if (!err) {
@@ -187,7 +192,7 @@ router.delete('/:buyer_id/purchased/:item_id', function (req, res, next) { // DE
 router.delete('/:buyer_id/wished/:item_id', function (req, res, next) {// DELETE /items/:buyer_id/wished/:item_id : 구매자의 장바구니에서 해당 상품이 삭제된다.
     let buyer_id = req.params.buyer_id
     let item_id = req.params.item_id
-    let sqlQuery = `DELETE from wish WHERE wisher_id='${buyer_id} AND item_id='${item_id}'`
+    let sqlQuery = `DELETE from wish WHERE wisher_id='${buyer_id}' AND item_id='${item_id}'`
     // 또 item의 wished number도 1 줄인다.
     // Get Connection in Pool
     pool.getConnection(function (err, connection) {
@@ -236,16 +241,17 @@ router.get('/:seller_id/registered', function(req, res, next) {// GET /items/:se
     });
 });
 
-router.put('/:seller_id/registered/:item_id', function(req, res, next) {// PUT /items/:seller_id/registered/:item_id : body로 {[name:상품이름[, status:상태[, place:교환장소[, price:가격[, image:사진]]]]]} put 가능 (경매에서 낙찰시 status만 바꾸면 됨)
+router.put('/:seller_id/registered/:item_id', function(req, res, next) {// PUT /items/:seller_id/registered/:item_id : body로 {[name:상품이름[, status:상태[, place:교환장소[, price:가격[, image:사진[, category:카테고리]]]]]]} put 가능 (경매에서 낙찰시 status만 바꾸면 됨)
     // let seller_id = req.params.seller_id // 지금은 안씀
     let item_id = req.params.item_id
-    let {name, status, place, price, image} = req.body
+    let {name, status, place, price, image, category} = req.body
     let setArr = []// set Query list
     if(name!==undefined) setArr.push(`name='${name}'`)
     if(status!==undefined) setArr.push(`status='${status}'`)
     if(place!==undefined) setArr.push(`place='${place}'`)
     if(price!==undefined) setArr.push(`price='${price}'`)
     if(image!==undefined) setArr.push(`image='${image}'`)
+    if(category!==undefined) setArr.push(`category='${category}'`)
     if(setArr.length === 0) {
         res.status(400).send('there is no value to update')
         return
@@ -271,16 +277,16 @@ router.put('/:seller_id/registered/:item_id', function(req, res, next) {// PUT /
     });
 });
 
-router.post('/:seller_id/registered', function(req, res, next) {// POST /items/:seller_id/registered : body로 {name:상품이름, place:교환장소[, price:가격], image:사진} post 가능 (price가 없을 시엔 0으로 기본 설정되고, status가 경매중으로 설정된다.)
+router.post('/:seller_id/registered', function(req, res, next) {// POST /items/:seller_id/registered : body로 {name:상품이름, place:교환장소[, price:가격], image:사진, category:카테고리} post 가능 (price가 없을 시엔 0으로 기본 설정되고, status가 경매중으로 설정된다.)
     let seller_id = req.params.seller_id
-    let {name, place, price, image} = req.body
+    let {name, place, price, image, status, category} = req.body
     let defaultPrice = 1
     if (price === undefined) { // auction
         status = 'auction'
         price = defaultPrice // 기본값으로 설정한다.
     }
     else { // sell
-        status = 'sell'
+        status = status || 'sell'
     }
     // let sqlQuery = `INSERT INTO items( name, place, price, image, .....) VALUES('${name}', '${place}', '${price}', '${image}', '${...else...else.}')`
     connection.query(sqlQuery, function (err, rows, fields) {
