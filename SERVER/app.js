@@ -1,11 +1,10 @@
-let http = require('http');
 let express = require('express');
 let cors = require('cors')
 let path = require('path');
 let cookieParser = require('cookie-parser');
 let logger = require('morgan');
 let session = require('express-session');
-let FileStore = require('session-file-store');
+let fileStore = require('session-file-store');
 
 let membersRouter = require('./routes/members');
 let itemsRouter = require('./routes/items');

@@ -42,7 +42,7 @@
 
 # Data Structure Specification
 
-## PERSON : 
+## PEOPLE : 
     id:아이디:VARCHAR(35), 
     sid:학번:VARCHAR(35), 
     password:비밀번호:VARCHAR(35), 
@@ -67,15 +67,15 @@
     (wished_number:INT = 장바구니 담긴 수, 서버에서 계산)
 
     PRIMARYKEY(id)
-    seller_id REFERENCES PERSON(id)
-    buyer_id REFERENCES PERSON(id)
-    cur_bidder_id REFERENCES PERSON(id)
+    seller_id REFERENCES PEOPLE(id)
+    buyer_id REFERENCES PEOPLE(id)
+    cur_bidder_id REFERENCES PEOPLE(id)
 
 ## WISH :
     wisher_id:VARCHAR(35)
     item_id:VARCHAR(35)
 
     PRIMARYKEY(wisher_id,item_id)
-    wisher_id REFERENCES PERSON(id)
+    wisher_id REFERENCES PEOPLE(id)
     item_id REFERENCES ITEM(id)
     
