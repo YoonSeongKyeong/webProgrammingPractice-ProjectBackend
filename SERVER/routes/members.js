@@ -6,7 +6,6 @@ let session = require('express-session');
 // mysql connection init start
 const { sqlConfig } = require('../secrets/sqlconfig')
 
-
 const mysql = require('mysql');
 let pool = mysql.createPool(sqlConfig);
 // mysql connection init end
@@ -101,7 +100,7 @@ router.post('/', function (req, res, next) { // POST /members : body로 {id:아�
         if (!err) {
             //connected!
         }
-        let sqlQuery = `GET * from people where id=${member_id}` // first check if any duplicate of id
+        let sqlQuery = `SELECT * from people where id=${member_id}` // first check if any duplicate of id
         
         connection.query(sqlQuery, function (err, rows, fields) {
             if (!err) {
@@ -133,7 +132,7 @@ router.post('/login', function (req, res, next) { // POST /members/login : body�
         if (!err) {
             //connected!
         }
-        let sqlQuery = `GET * from people where id=${id}` // id에 맞는 user 정보를 받아온다.
+        let sqlQuery = `SELECT * from people where id=${id}` // id에 맞는 user 정보를 받아온다.
         
         connection.query(sqlQuery, function (err, rows, fields) {
             if (!err) {

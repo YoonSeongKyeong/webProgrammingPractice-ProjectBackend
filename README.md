@@ -25,7 +25,7 @@
 ### wish list
 - ### GET /items/:buyer_id/wished : response로 buyer_id에 해당하는 구매자가 장바구니에 담은 상품 목록 [{item}, ...] 을 받아온다.
 ### purchase
-- ### POST /items/:buyer_id/purchased/:item_id : 구매자의 구매목록에 해당 상품이 저장된다.
+- ### POST /items/:buyer_id/purchased/:item_id/?mode=(purchase|auction) : 구매자의 구매목록에 해당 상품이 저장된다. 입찰한 경우에는 body에 {price: 입찰가격}이 있어야 한다.
 ### add to wish list
 - ### POST /items/:buyer_id/wished/:item_id : 구매자의 장바구니에 해당 상품이 저장된다.
 ### cancel purchase
@@ -65,8 +65,8 @@
     cur_bidder:현재입찰자아이디:VARCHAR(35),
     auction_history:입찰기록:VARCHAR(1024)
     auction_expire_time:경매종료시각:DATE
+    wished_number:INT = 장바구니 담긴 수, 서버에서 계산
     (auction_time_last:INT = 시간 단위, 서버에서 계산)
-    (wished_number:INT = 장바구니 담긴 수, 서버에서 계산)
 
     PRIMARYKEY(id)
     seller_id REFERENCES PERSON(id)
