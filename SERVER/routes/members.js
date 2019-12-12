@@ -1,6 +1,7 @@
 let express = require('express');
 let router = express.Router();
 let crypto = require('crypto');
+let session = require('express-session');
 
 // mysql connection init start
 const { sqlConfig } = require('../secrets/sqlconfig')
@@ -138,6 +139,9 @@ router.post('/login', function (req, res, next) { // POST /members/login : body�
             if (!err) {
                 console.log('The solution is: ', rows);
                 if(password === rows.password) {
+                    session = req.session
+                    // session.userId
+                    // session.userName
                     res.status(200).send() // 세션을 만들어서 유저에게 세션 id를 보낸다.
                 }
                 else { // 비밀번호가 다른 경우
@@ -151,6 +155,12 @@ router.post('/login', function (req, res, next) { // POST /members/login : body�
         // 커넥션을 풀에 반환
         connection.release();
     });
+});
+
+router.put('/logout', function (req, res, next) { // PUT /members/logout : 로그아웃한다. 현재 세션을 종료한다.
+    req.session.destory();  // 세션 삭제
+    res.clearCookie('sid'); // 세션 쿠키 삭제
+    res.send.status(200).send()
 });
 
 

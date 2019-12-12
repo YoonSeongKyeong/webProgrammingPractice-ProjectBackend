@@ -13,6 +13,8 @@
 - ### POST /members : body로 {id:아이디, sid:학번, password:비밀번호, name:이름, classification:("manager"|"seller"|"buyer"), phone:전화번호} post
 ### login
 - ### POST /members/login : body로 {id:아이디, sid:학번, password:비밀번호} post하면, response로 user정보를 받아온다
+### logout
+- ### PUT /members/logout : 로그아웃한다. 현재 세션을 종료한다.
 
 # 상품(Items)
 ## 구매자 기능(Buyer's function)
