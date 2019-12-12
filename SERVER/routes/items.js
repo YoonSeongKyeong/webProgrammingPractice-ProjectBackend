@@ -15,12 +15,46 @@ router.get('/', function (req, res, next) {// GET /items/?sellerName=판매자�
     let search = req.query.search
     let minPrice = Number(req.query.minPrice)
     let maxPrice = Number(req.query.maxPrice)
+    let whereArr = []
+    if(sellerName !== undefined) {
+        whereArr.push(`seller_id="${sellerName}"`)
+    }
+    if(search !== undefined) {
+        whereArr.push(`name LIKE '%${search}%'`)
+    }
+    if(minPrice !== undefined) {
+        whereArr.push(`price > ${minPrice}`)
+    }
+    if(maxPrice !== undefined) {
+        whereArr.push(`price < ${maxPrice}`)
+    }
+    let sqlQuery = `SELECT * FROM items `
+    if(whereArr.length!==0) {
+        sqlQuery = sqlQuery + "WHERE " + whereArr.join(" AND ")
+    }
+    // Get Connection in Pool
+    pool.getConnection(function (err, connection) {
+        if (!err) {
+            //connected!
+        }
 
+        connection.query(sqlQuery, function (err, rows, fields) {
+            if (!err) {
+                console.log('The solution is: ', rows);
+                res.status(200).send(rows)
+            }
+            else
+                console.log('Error while performing Query.', err);
+        });
+
+        // 커넥션을 풀에 반환
+        connection.release();
+    });
 });
 
 router.get('/:buyer_id/purchased', function (req, res, next) {// GET /items/:buyer_id/purchased : response로 buyer_id에 해당하는 구매자가 구매, 입찰한 상품 목록 [{item}, ...] 을 받아온다.
     let buyer_id = req.params.buyer_id
-    let sqlQuery = `SELECT * FROM items where buyer_id = '${buyer_id}' OR cur_bidder_id = '${buyer_id} `
+    let sqlQuery = `SELECT * FROM items WHERE buyer_id = '${buyer_id}' OR cur_bidder_id = '${buyer_id} `
     // Get Connection in Pool
     pool.getConnection(function (err, connection) {
         if (!err) {

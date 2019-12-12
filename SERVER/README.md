@@ -43,28 +43,28 @@
 # Data Structure Specification
 
 ## PEOPLE : 
-    id:아이디:VARCHAR(35), 
-    sid:학번:VARCHAR(35), 
-    password:비밀번호:VARCHAR(35), 
-    name:이름:VARCHAR(35), 
-    classification:("manager"|"seller"|"buyer"):VARCHAR(35), phone:전화번호:VARCHAR(35)
+    id:아이디:VARCHAR(45), 
+    sid:학번:VARCHAR(45), 
+    password:비밀번호:VARCHAR(64), 
+    name:이름:VARCHAR(45), 
+    classification:("manager"|"seller"|"buyer"):VARCHAR(45), phone:전화번호:VARCHAR(45)
 
     PRIMARYKEY(id)
 
-## ITEM : 
-    id: 아이디:VARCHAR(35)
-    name:상품이름:VARCHAR(35), 
-    place:교환장소:VARCHAR(35), 
+## ITEMS : 
+    id: 아이디:VARCHAR(45)
+    name:상품이름:VARCHAR(45), 
+    place:교환장소:VARCHAR(45), 
     price:가격:INT, 
-    status:상태:VARCHAR(35),
+    status:상태:("sell"|"auction"|"closed"):VARCHAR(45),
     image:사진:BLOB,
-    seller_id:판매자아이디:VARCHAR(35),
-    buyer_id:구매자아이디:VARCHAR(35)
-    cur_bidder:현재입찰자아이디:VARCHAR(35),
+    seller_id:판매자아이디:VARCHAR(45),
+    buyer_id:구매자아이디:VARCHAR(45)
+    cur_bidder_id:현재입찰자아이디:VARCHAR(45),
     auction_history:입찰기록:VARCHAR(1024)
-    auction_expire_time:경매종료시각:DATE
+    auction_expire_time:경매종료시각:DATETIME
+    wished_number:INT = 장바구니 담긴 수
     (auction_time_last:INT = 시간 단위, 서버에서 계산)
-    (wished_number:INT = 장바구니 담긴 수, 서버에서 계산)
 
     PRIMARYKEY(id)
     seller_id REFERENCES PEOPLE(id)
@@ -72,8 +72,8 @@
     cur_bidder_id REFERENCES PEOPLE(id)
 
 ## WISH :
-    wisher_id:VARCHAR(35)
-    item_id:VARCHAR(35)
+    wisher_id:VARCHAR(45)
+    item_id:VARCHAR(45)
 
     PRIMARYKEY(wisher_id,item_id)
     wisher_id REFERENCES PEOPLE(id)
