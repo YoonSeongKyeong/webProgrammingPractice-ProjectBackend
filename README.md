@@ -58,14 +58,14 @@
     name:상품이름:VARCHAR(35), 
     place:교환장소:VARCHAR(35), 
     price:가격:INT, 
-    status:상태:VARCHAR(35),
+    status:상태:("sell"|"auction"|"soldout"):VARCHAR(35), 
     image:사진:BLOB,
     seller_id:판매자아이디:VARCHAR(35),
     buyer_id:구매자아이디:VARCHAR(35)
     cur_bidder:현재입찰자아이디:VARCHAR(35),
     auction_history:입찰기록:VARCHAR(1024)
     auction_expire_time:경매종료시각:DATE
-    wished_number:INT = 장바구니 담긴 수, 서버에서 계산
+    wished_number:INT = 장바구니 담긴 수
     (auction_time_last:INT = 시간 단위, 서버에서 계산)
 
     PRIMARYKEY(id)
