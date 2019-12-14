@@ -18,40 +18,42 @@ router.get('/', function (req, res, next) {// GET /items/?sellerName=판매자�
     let maxPrice = Number(req.query.maxPrice)
     let category = req.query.category
     let whereArr = []
-    if(!!sellerName) {
+    if (!!sellerName) {
         whereArr.push(`seller_id="${sellerName}"`)
     }
-    if(!!search) {
+    if (!!search) {
         whereArr.push(`name LIKE '%${search}%'`)
     }
-    if(!!minPrice) {
+    if (!!minPrice) {
         whereArr.push(`price > ${minPrice}`)
     }
-    if(!!maxPrice) {
+    if (!!maxPrice) {
         whereArr.push(`price < ${maxPrice}`)
     }
-    if(!!category) {
+    if (!!category) {
         whereArr.push(`category = ${category}`)
     }
     let sqlQuery = `SELECT * FROM items `
-    if(whereArr.length!==0) {
+    if (whereArr.length !== 0) {
         sqlQuery = sqlQuery + "WHERE " + whereArr.join(" AND ")
     }
     // Get Connection in Pool
     pool.getConnection(function (err, connection) {
         if (!err) {
             //connected!
+            
+            connection.query(sqlQuery, function (err, rows, fields) {
+                if (!err) {
+                    console.log('The solution is: ', rows);
+                    res.status(200).send(rows)
+                }
+                else {
+                    console.log('Error while performing Query.', err);
+                    res.status(500).send(err)
+                }
+            });
+            
         }
-
-        connection.query(sqlQuery, function (err, rows, fields) {
-            if (!err) {
-                console.log('The solution is: ', rows);
-                res.status(200).send(rows)
-            }
-            else
-                console.log('Error while performing Query.', err);
-        });
-
         // 커넥션을 풀에 반환
         connection.release();
     });
@@ -65,17 +67,19 @@ router.get('/:buyer_id/purchased', function (req, res, next) {// GET /items/:buy
     pool.getConnection(function (err, connection) {
         if (!err) {
             //connected!
+            
+            connection.query(sqlQuery, function (err, rows, fields) {
+                if (!err) {
+                    console.log('The solution is: ', rows);
+                    res.status(200).send(rows)
+                }
+                else {
+                    console.log('Error while performing Query.', err);
+                    res.status(500).send(err)
+                }
+            });
+            
         }
-
-        connection.query(sqlQuery, function (err, rows, fields) {
-            if (!err) {
-                console.log('The solution is: ', rows);
-                res.status(200).send(rows)
-            }
-            else
-                console.log('Error while performing Query.', err);
-        });
-
         // 커넥션을 풀에 반환
         connection.release();
     });
@@ -88,19 +92,21 @@ router.get('/:buyer_id/wished', function (req, res, next) {// GET /items/:buyer_
     pool.getConnection(function (err, connection) {
         if (!err) {
             //connected!
+            
+            connection.query(sqlQuery, function (err, rows, fields) {
+                if (!err) {
+                    console.log('The solution is: ', rows);
+                    res.status(200).send(rows)
+                }
+                else {
+                    console.log('Error while performing Query.', err);
+                    res.status(500).send(err)
+                }
+            });
+            
         }
-
-        connection.query(sqlQuery, function (err, rows, fields) {
-            if (!err) {
-                console.log('The solution is: ', rows);
-                res.status(200).send(rows)
-            }
-            else
-                console.log('Error while performing Query.', err);
-        });
-
-        // 커넥션을 풀에 반환
-        connection.release();
+            // 커넥션을 풀에 반환
+            connection.release();
     });
 });
 
@@ -110,30 +116,61 @@ router.post('/:buyer_id/purchased/:item_id', function (req, res, next) {// POST 
     let item_id = req.params.item_id
     let mode = req.query.mode // 구매시 purchase, 입찰시 auction
     let price = req.body.price // 입찰 가격
-    if(mode === 'purchase') {
-        let sqlQuery = `UPDATE items SET buyer_id='${buyer_id}' where id = '${item_id}' `
-        // 또 item 상태를 soldout으로 바꾼다.
+    if (mode === 'purchase') {
+        let sqlQuery = `UPDATE items SET buyer_id='${buyer_id}',status='soldout' where id = '${item_id}' `
+        // Get Connection in Pool
+        pool.getConnection(function (err, connection) {
+            if (!err) {
+                //connected!
+                
+                connection.query(sqlQuery, function (err, rows, fields) {
+                    if (!err) {
+                        console.log('The solution is: ', rows);
+                        res.status(200).send(rows)
+                    }
+                    else {
+                        console.log('Error while performing Query.', err);
+                        res.status(500).send(err)
+                    }
+                });
+                
+            }
+                // 커넥션을 풀에 반환
+                connection.release();
+            });
+    }
+    else if (mode === 'auction') { // auction
+        // auction history를 작성하고, item의 cur_bidder_id를 갱신한다.
+        let sqlQuery = `SELECT auction_history from items where id = '${item_id}' `
         // Get Connection in Pool
         pool.getConnection(function (err, connection) {
             if (!err) {
                 //connected!
             }
-    
             connection.query(sqlQuery, function (err, rows, fields) {
                 if (!err) {
                     console.log('The solution is: ', rows);
-                    res.status(200).send(rows)
+                    sqlQuery = `UPDATE items SET auction_history='${rows[0].auction_history + "|" + buyer_id + "," + price}',cur_bidder_id='${buyer_id}' where id = '${item_id}' `
+                    connection.query(sqlQuery, function (err, rows, fields) {
+                        if (!err) {
+                            console.log('The solution is: ', rows);
+                            res.status(200).send(rows)
+                        }
+                        else {
+                            console.log('Error while performing Query.', err);
+                            res.status(500).send(err)
+                        }
+                    });
                 }
-                else
+                else {
                     console.log('Error while performing Query.', err);
+                    res.status(500).send(err)
+                }
             });
-    
+
             // 커넥션을 풀에 반환
             connection.release();
         });
-    }
-    else if (mode ==='auction') { // auction
-        // auction history를 작성하고, item의 cur_bidder_id를 갱신한다.
     }
     else {
         res.status(400).send('no valid mode exist')
@@ -144,22 +181,33 @@ router.post('/:buyer_id/wished/:item_id', function (req, res, next) {// POST /it
     let buyer_id = req.params.buyer_id
     let item_id = req.params.item_id
     let sqlQuery = `INSERT INTO wish(wisher_id, item_id)  VALUES('${buyer_id}', '${item_id}')`
-    // 또 item의 wished number도 1 늘린다.
     // Get Connection in Pool
+    debugger
     pool.getConnection(function (err, connection) {
         if (!err) {
             //connected!
+            
+            connection.query(sqlQuery, function (err, rows, fields) {
+                if (!err) {
+                    console.log('The solution is: ', rows);
+                    sqlQuery = `UPDATE items SET wished_number=wished_number+1 WHERE id='${item_id}'`
+                    connection.query(sqlQuery, function (err, rows, fields) {
+                        if (!err) {
+                            console.log('The solution is: ', rows);
+                            res.status(200).send(rows)
+                        }
+                        else {
+                            console.log('Error while performing Query.', err);
+                            res.status(500).send(err)
+                        }
+                    });
+                }
+                else {
+                    console.log('Error while performing Query.', err);
+                    res.status(500).send(err)
+                }
+            });
         }
-
-        connection.query(sqlQuery, function (err, rows, fields) {
-            if (!err) {
-                console.log('The solution is: ', rows);
-                res.status(200).send(rows)
-            }
-            else
-                console.log('Error while performing Query.', err);
-        });
-
         // 커넥션을 풀에 반환
         connection.release();
     });
@@ -173,16 +221,18 @@ router.delete('/:buyer_id/purchased/:item_id', function (req, res, next) { // DE
     pool.getConnection(function (err, connection) {
         if (!err) {
             //connected!
+            
+            connection.query(sqlQuery, function (err, rows, fields) {
+                if (!err) {
+                    console.log('The solution is: ', rows);
+                    res.status(200).send(rows)
+                }
+                else {
+                    console.log('Error while performing Query.', err);
+                    res.status(500).send(err)
+                }
+            });
         }
-
-        connection.query(sqlQuery, function (err, rows, fields) {
-            if (!err) {
-                console.log('The solution is: ', rows);
-                res.status(200).send(rows)
-            }
-            else
-                console.log('Error while performing Query.', err);
-        });
 
         // 커넥션을 풀에 반환
         connection.release();
@@ -193,21 +243,33 @@ router.delete('/:buyer_id/wished/:item_id', function (req, res, next) {// DELETE
     let buyer_id = req.params.buyer_id
     let item_id = req.params.item_id
     let sqlQuery = `DELETE from wish WHERE wisher_id='${buyer_id}' AND item_id='${item_id}'`
-    // 또 item의 wished number도 1 줄인다.
     // Get Connection in Pool
     pool.getConnection(function (err, connection) {
         if (!err) {
             //connected!
+            
+            connection.query(sqlQuery, function (err, rows, fields) {
+                if (!err) {
+                    console.log('The solution is: ', rows);
+                    sqlQuery = `UPDATE items SET wished_number=wished_number-1 WHERE id='${item_id}'`
+                    connection.query(sqlQuery, function (err, rows, fields) {
+                        if (!err) {
+                            console.log('The solution is: ', rows);
+                            res.status(200).send(rows)
+                        }
+                        else {
+                            console.log('Error while performing Query.', err);
+                            res.status(500).send(err)
+                        }
+                    });
+                }
+                else {
+                    console.log('Error while performing Query.', err);
+                    res.status(500).send(err)
+                }
+            });
         }
 
-        connection.query(sqlQuery, function (err, rows, fields) {
-            if (!err) {
-                console.log('The solution is: ', rows);
-                res.status(200).send(rows)
-            }
-            else
-                console.log('Error while performing Query.', err);
-        });
 
         // 커넥션을 풀에 반환
         connection.release();
@@ -218,9 +280,10 @@ router.delete('/:buyer_id/wished/:item_id', function (req, res, next) {// DELETE
 
 // Seller Functions
 
-router.get('/:seller_id/registered', function(req, res, next) {// GET /items/:seller_id/registered : response로 seller_id에 해당하는 판매자가 등록한 상품 목록 [{item}, ...] 을 받아온다. (item에는 wished_number에서 장바구니에 담긴 횟수, auction_history에서 경매 기록을 확인할 수 있다 "buyer_id,price|buyer_id,price|..."가 반복되는 형식이고 늦게 입찰한 사람이 뒤에 있는 순서를 갖고 있다.)
+router.get('/:seller_id/registered', function (req, res, next) {// GET /items/:seller_id/registered : response로 seller_id에 해당하는 판매자가 등록한 상품 목록 [{item}, ...] 을 받아온다. (item에는 wished_number에서 장바구니에 담긴 횟수, auction_history에서 경매 기록을 확인할 수 있다 "buyer_id,price|buyer_id,price|..."가 반복되는 형식이고 늦게 입찰한 사람이 뒤에 있는 순서를 갖고 있다.)
+    debugger
     let seller_id = req.params.seller_id
-    let sqlQuery = `SELECT from items WHERE seller_id='${seller_id}'`
+    let sqlQuery = `SELECT * from items WHERE seller_id='${seller_id}'`
     // Get Connection in Pool
     pool.getConnection(function (err, connection) {
         if (!err) {
@@ -232,8 +295,10 @@ router.get('/:seller_id/registered', function(req, res, next) {// GET /items/:se
                 console.log('The solution is: ', rows);
                 res.status(200).send(rows)
             }
-            else
+            else {
                 console.log('Error while performing Query.', err);
+                res.status(500).send(err)
+            }
         });
 
         // 커넥션을 풀에 반환
@@ -241,18 +306,18 @@ router.get('/:seller_id/registered', function(req, res, next) {// GET /items/:se
     });
 });
 
-router.put('/:seller_id/registered/:item_id', function(req, res, next) {// PUT /items/:seller_id/registered/:item_id : body로 {[name:상품이름[, status:상태[, place:교환장소[, price:가격[, image:사진[, category:카테고리]]]]]]} put 가능 (경매에서 낙찰시 status만 바꾸면 됨)
+router.put('/:seller_id/registered/:item_id', function (req, res, next) {// PUT /items/:seller_id/registered/:item_id : body로 {[name:상품이름[, status:상태[, place:교환장소[, price:가격[, image:사진[, category:카테고리]]]]]]} put 가능 (경매에서 낙찰시 status만 바꾸면 됨)
     // let seller_id = req.params.seller_id // 지금은 안씀
     let item_id = req.params.item_id
-    let {name, status, place, price, image, category} = req.body
+    let { name, status, place, price, image, category } = req.body
     let setArr = []// set Query list
-    if(name!==undefined) setArr.push(`name='${name}'`)
-    if(status!==undefined) setArr.push(`status='${status}'`)
-    if(place!==undefined) setArr.push(`place='${place}'`)
-    if(price!==undefined) setArr.push(`price='${price}'`)
-    if(image!==undefined) setArr.push(`image='${image}'`)
-    if(category!==undefined) setArr.push(`category='${category}'`)
-    if(setArr.length === 0) {
+    if (name !== undefined) setArr.push(`name='${name}'`)
+    if (status !== undefined) setArr.push(`status='${status}'`)
+    if (place !== undefined) setArr.push(`place='${place}'`)
+    if (price !== undefined) setArr.push(`price='${price}'`)
+    if (image !== undefined) setArr.push(`image='${image}'`)
+    if (category !== undefined) setArr.push(`category='${category}'`)
+    if (setArr.length === 0) {
         res.status(400).send('there is no value to update')
         return
     }
@@ -268,8 +333,10 @@ router.put('/:seller_id/registered/:item_id', function(req, res, next) {// PUT /
                 console.log('The solution is: ', rows);
                 res.status(200).send(rows)
             }
-            else
+            else {
                 console.log('Error while performing Query.', err);
+                res.status(500).send(err)
+            }
         });
 
         // 커넥션을 풀에 반환
@@ -277,9 +344,11 @@ router.put('/:seller_id/registered/:item_id', function(req, res, next) {// PUT /
     });
 });
 
-router.post('/:seller_id/registered', function(req, res, next) {// POST /items/:seller_id/registered : body로 {name:상품이름, place:교환장소[, price:가격], image:사진, category:카테고리} post 가능 (price가 없을 시엔 0으로 기본 설정되고, status가 경매중으로 설정된다.)
+router.post('/:seller_id/registered', function (req, res, next) {// POST /items/:seller_id/registered : body로 {name:상품이름, place:교환장소[, price:가격], image:사진, category:카테고리} post 가능 (price가 없을 시엔 0으로 기본 설정되고, status가 경매중으로 설정된다.)
+    debugger
     let seller_id = req.params.seller_id
-    let {name, place, price, image, status, category} = req.body
+    // let {name, place, price, image, status, category} = req.body // 이미지 처리 구현 안됨
+    let { name, place, price, status, category } = req.body
     let defaultPrice = 1
     if (price === undefined) { // auction
         status = 'auction'
@@ -288,22 +357,32 @@ router.post('/:seller_id/registered', function(req, res, next) {// POST /items/:
     else { // sell
         status = status || 'sell'
     }
-    // let sqlQuery = `INSERT INTO items( name, place, price, image, .....) VALUES('${name}', '${place}', '${price}', '${image}', '${...else...else.}')`
-    connection.query(sqlQuery, function (err, rows, fields) {
-        if (!err) {
-            console.log('The solution is: ', rows);
-            res.status(201).send()
-        }
-        else
-            console.log('Error while performing Query.', err);
-    });
+    // let sqlQuery = `INSERT INTO items( name, place, price, image, status, category ) VALUES('${name}', '${place}', '${price}', '${image}', '${status}', '${category}')` // 이미지 처리 현재 구현 안됨
+    let sqlQuery = `INSERT INTO items(id, name, place, price, status, category, seller_id ) VALUES('${name}','${name}', '${place}', '${price}', '${status}', '${category}', '${seller_id}')`
 
-    // 커넥션을 풀에 반환
-    connection.release();
+    pool.getConnection(function (err, connection) {
+        if (!err) {
+            //connected!
+        }
+        connection.query(sqlQuery, function (err, rows, fields) {
+            if (!err) {
+                console.log('The solution is: ', rows);
+                res.status(201).send()
+            }
+            else {
+                console.log('Error while performing Query.', err);
+                res.status(500).send(err)
+            }
+        });
+
+        // 커넥션을 풀에 반환
+        connection.release();
+    });
 });
 
-router.delete('/:seller_id/registered/item_id', function(req, res, next) {// DELETE /items/:seller_id/registered/item_id : 판매자가 등록한 해당 item을 삭제한다. 
+router.delete('/:seller_id/registered/:item_id', function (req, res, next) {// DELETE /items/:seller_id/registered/item_id : 판매자가 등록한 해당 item을 삭제한다. 
     // let seller_id = req.params.seller_id // 지금은 안씀
+    
     let item_id = req.params.item_id
     let sqlQuery = `DELETE from items where id='${item_id}'`
     // Get Connection in Pool
@@ -317,8 +396,10 @@ router.delete('/:seller_id/registered/item_id', function(req, res, next) {// DEL
                 console.log('The solution is: ', rows);
                 res.status(204).send()
             }
-            else
+            else {
                 console.log('Error while performing Query.', err);
+                res.status(500).send(err)
+            }
         });
 
         // 커넥션을 풀에 반환

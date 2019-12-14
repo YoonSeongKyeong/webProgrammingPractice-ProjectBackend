@@ -53,7 +53,7 @@
     PRIMARYKEY(id)
 
 ## ITEMS : 
-    id: 아이디:VARCHAR(45)
+    id: 아이디:VARCHAR(45) : 현재 아이디와 상품 이름은 같게 설정되어 있다.
     name:상품이름:VARCHAR(45), 
     place:교환장소:VARCHAR(45), 
     price:가격:INT, 

@@ -16,9 +16,63 @@ ALTER TABLE wish ADD FOREIGN KEY(wisher_id) REFERENCES people(id)
 - #### GET http://localhost:3000/items/this is ID/purchased
 - #### GET http://localhost:3000/items/this is ID/wished
 - #### POST http://localhost:3000/items/this is ID/purchased/this is item ID5/?mode=purchase
+```
+{
+	"price":999999
+}
+```
 - #### POST http://localhost:3000/items/this is ID/purchased/this is item ID2/?mode=auction
+```
+{
+	"price":999999
+}
+```
 - #### POST http://localhost:3000/items/this is ID/wished/this is item ID2
+- #### DELETE http://localhost:3000/items/this is ID/wished/this is item ID2
 - #### DELETE http://localhost:3000/items/this is ID/purchased/this is item ID1
 - #### DELETE http://localhost:3000/items/this is ID/wished/this is item ID2
+- #### GET http://localhost:3000/items/idOfSeller/registered
+- #### POST http://localhost:3000/items/idOfSeller/registered  
+```
+{
+    "name": "newname",
+    "place": "my home",
+    "price": 39900,
+    "status": "sell",
+    "category": "electronics"
+}
+```
+- #### DELETE http://localhost:3000/items/idOfSeller/registered/newname
+- #### GET http://localhost:3000/members
+- #### PUT http://localhost:3000/members/this is ID3
+```
+{
+	"sid":"2017314380",
+	"password":"mypwd"
+}
+```
+- #### DELETE http://localhost:3000/members/this is ID3
+- #### POST http://localhost:3000/members
+```
+{
+    "id": "this is ID3",
+    "sid": "1123456",
+    "password": "pwdd",
+    "name": "ysk",
+    "classification": "seller",
+    "phone": "010-1111-2222"
+}
+```
+- #### POST http://localhost:3000/members/login
+```
+{
+    "id": "this is ID3",
+    "password": "pwdd",
+}
+```
+- #### PUT http://localhost:3000/members/logout
+
+
+
 - #### http://localhost:3000/items
 - #### http://localhost:3000/items

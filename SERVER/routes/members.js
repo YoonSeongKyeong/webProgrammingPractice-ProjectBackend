@@ -93,62 +93,69 @@ router.delete('/:member_id', function (req, res, next) { // DELETE /members/:mem
 });
 
 router.post('/', function (req, res, next) { // POST /members : body로 {id:아이디, sid:학번, password:비밀번호, name:이름, classification:("manager"|"seller"|"buyer"), 
-    let {id, sid, password, name, classification} = req.body
+    debugger
+    let {id, sid, password, name, classification, phone} = req.body
     password = crypto.createHash('sha512').update(password).digest('base64'); // hash the password
     // Get Connection in Pool
     pool.getConnection(function (err, connection) {
         if (!err) {
             //connected!
-        }
-        let sqlQuery = `SELECT * from people where id=${member_id}` // first check if any duplicate of id
-        
-        connection.query(sqlQuery, function (err, rows, fields) {
-            if (!err) {
-                console.log('The solution is: ', rows);
-                // 중복이 없다면
-                sqlQuery = `INSERT INTO people(id, sid, password, name, classification) VALUES('${id}', '${sid}', '${password}', '${name}', '${classification}')`
-                connection.query(sqlQuery, function (err, rows, fields) {
-                    if (!err) {
-                        console.log('The solution is: ', rows);
-                        res.status(201).send()
+            let sqlQuery = `SELECT id from people where id='${id}'` // first check if any duplicate of id
+            
+            connection.query(sqlQuery, function (err, rows, fields) {
+                if (!err) {
+                    console.log('The solution is: ', rows);
+                    if(rows[0] && rows[0].id === id) {
+                        res.status(400).send("id already exists")
+                        return
                     }
-                    else
+                    sqlQuery = `INSERT INTO people(id, sid, password, name, classification, phone) VALUES('${id}', '${sid}', '${password}', '${name}', '${classification}', '${phone}')`
+                    connection.query(sqlQuery, function (err, rows, fields) {
+                        if (!err) {
+                            console.log('The solution is: ', rows);
+                            res.status(201).send()
+                        }
+                        else
                         console.log('Error while performing Query.', err);
-                });
-            }
-            else
+                    });
+                }
+                else
                 console.log('Error while performing Query.', err);
+            });
+
+        }
+            // 커넥션을 풀에 반환
+            connection.release();
         });
-
-        // 커넥션을 풀에 반환
-        connection.release();
     });
-});
-
-router.post('/login', function (req, res, next) { // POST /members/login : body로 {id:아이디, password:비밀번호} post하면, response로 user정보를 받아온다
+    
+    router.post('/login', function (req, res, next) { // POST /members/login : body로 {id:아이디, password:비밀번호} post하면, response로 user정보를 받아온다
+    debugger
     let {id, password} = req.body
     password = crypto.createHash('sha512').update(password).digest('base64'); // hash the password
     pool.getConnection(function (err, connection) {
         if (!err) {
             //connected!
         }
-        let sqlQuery = `SELECT * from people where id=${id}` // id에 맞는 user 정보를 받아온다.
+        let sqlQuery = `SELECT * from people where id='${id}'` // id에 맞는 user 정보를 받아온다.
         
         connection.query(sqlQuery, function (err, rows, fields) {
-            if (!err) {
+            if (!err && rows) {
                 console.log('The solution is: ', rows);
-                if(password === rows.password) {
+                if(password === rows[0].password) {
                     session = req.session
-                    // session.userId
-                    // session.userName
+                    session.userId = rows[0].id
+                    session.userName = rows[0].name
                     res.status(200).send() // 세션을 만들어서 유저에게 세션 id를 보낸다.
                 }
                 else { // 비밀번호가 다른 경우
-                    
+                    res.status(400).send("비밀번호가 일치하지 않습니다.")
                 }
             }
-            else // 아이디가 존재하지 않는 경우
+            else { // 아이디가 존재하지 않는 경우
                 console.log('Error while performing Query.', err);
+                res.status(400).send("id가 존재하지 않습니다.")
+            }
         });
 
         // 커넥션을 풀에 반환
