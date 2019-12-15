@@ -46,7 +46,7 @@
 ## PEOPLE : 
     id:아이디:VARCHAR(45), 
     sid:학번:VARCHAR(45), 
-    password:비밀번호:VARCHAR(64), 
+    password:비밀번호:VARCHAR(256), 
     name:이름:VARCHAR(45), 
     classification:("manager"|"seller"|"buyer"):VARCHAR(45), phone:전화번호:VARCHAR(45)
 
