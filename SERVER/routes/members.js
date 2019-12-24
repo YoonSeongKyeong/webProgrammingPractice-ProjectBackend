@@ -116,13 +116,16 @@ router.post('/', function (req, res, next) { // POST /members : body로 {id:아�
                             res.status(201).send()
                         }
                         else
-                        console.log('Error while performing Query.', err);
+                        console.error('Error while performing Query.', err);
                     });
                 }
                 else
-                console.log('Error while performing Query.', err);
+                console.error('Error while performing Query.', err);
             });
 
+        }
+        else {
+            console.error('Error while performing Query.', err);
         }
             // 커넥션을 풀에 반환
             connection.release();

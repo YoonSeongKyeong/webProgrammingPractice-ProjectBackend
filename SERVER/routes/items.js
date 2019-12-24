@@ -86,6 +86,7 @@ router.get('/:buyer_id/purchased', function (req, res, next) {// GET /items/:buy
 });
 
 router.get('/:buyer_id/wished', function (req, res, next) {// GET /items/:buyer_id/wished : response로 buyer_id에 해당하는 구매자가 장바구니에 담은 상품 목록 [{item}, ...] 을 받아온다.
+    debugger
     let buyer_id = req.params.buyer_id
     let sqlQuery = `SELECT i.* FROM items AS i JOIN wish AS w ON i.id=w.item_id where w.wisher_id = '${buyer_id}' `
     // Get Connection in Pool
@@ -150,7 +151,7 @@ router.post('/:buyer_id/purchased/:item_id', function (req, res, next) {// POST 
             connection.query(sqlQuery, function (err, rows, fields) {
                 if (!err) {
                     console.log('The solution is: ', rows);
-                    sqlQuery = `UPDATE items SET auction_history='${rows[0].auction_history + "|" + buyer_id + "," + price}',cur_bidder_id='${buyer_id}' where id = '${item_id}' `
+                    sqlQuery = `UPDATE items SET auction_history='${rows[0].auction_history + "|" + buyer_id + "," + price}',cur_bidder_id='${buyer_id}',price='${price}' where id = '${item_id}' `
                     connection.query(sqlQuery, function (err, rows, fields) {
                         if (!err) {
                             console.log('The solution is: ', rows);

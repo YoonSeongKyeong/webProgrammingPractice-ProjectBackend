@@ -15,12 +15,7 @@ ALTER TABLE wish ADD FOREIGN KEY(wisher_id) REFERENCES people(id)
 - #### GET http://localhost:3000/items?sellerName=idOfSeller&search=item
 - #### GET http://localhost:3000/items/this is ID/purchased
 - #### GET http://localhost:3000/items/this is ID/wished
-- #### POST http://localhost:3000/items/this is ID/purchased/this is item ID5/?mode=purchase
-```
-{
-	"price":999999
-}
-```
+- #### POST http://localhost:3000/items/this is ID2/purchased/this is item ID5/?mode=purchase
 - #### POST http://localhost:3000/items/this is ID/purchased/this is item ID2/?mode=auction
 ```
 {
@@ -30,7 +25,6 @@ ALTER TABLE wish ADD FOREIGN KEY(wisher_id) REFERENCES people(id)
 - #### POST http://localhost:3000/items/this is ID/wished/this is item ID2
 - #### DELETE http://localhost:3000/items/this is ID/wished/this is item ID2
 - #### DELETE http://localhost:3000/items/this is ID/purchased/this is item ID1
-- #### DELETE http://localhost:3000/items/this is ID/wished/this is item ID2
 - #### GET http://localhost:3000/items/idOfSeller/registered
 - #### POST http://localhost:3000/items/idOfSeller/registered  
 ```
@@ -67,7 +61,7 @@ ALTER TABLE wish ADD FOREIGN KEY(wisher_id) REFERENCES people(id)
 ```
 {
     "id": "this is ID3",
-    "password": "pwdd",
+    "password": "pwdd"
 }
 ```
 - #### PUT http://localhost:3000/members/logout
